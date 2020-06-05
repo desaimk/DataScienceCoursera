@@ -30,4 +30,4 @@ following.
 # Script & Output
 
 Please see run_analysis.R for script.
-Output is included as both, .csv and .txt - .csv provides an easier to view format. 
+Output is included as .txt file.
