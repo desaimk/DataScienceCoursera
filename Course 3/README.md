@@ -27,7 +27,7 @@ following.
     with your scripts. This repo explains how all of the scripts work
     and how they are connected.
 
-# Script
+# Script & Output
 
 Please see run_analysis.R for script.
-
+Output is included as both, .csv and .txt - .csv provides an easier to view format. 
