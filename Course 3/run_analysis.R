@@ -39,7 +39,7 @@ Y[Y==6] <- "Laying"
 ## Extract data with Mean and StDev
 
 X <- X[,c(grep(“.mean", names(X)), grep(“.sub", names(X)))]
-DS
+
 ## Create Tidy Data Set
 
 TidyDS <- cbind(SUBJ, Y, X)
