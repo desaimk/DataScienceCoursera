@@ -1,7 +1,7 @@
 READ ME
 ================
 
-# Assignment Instructions:
+# Assignment Instructions & Code Performance:
 
 You should create one R script called run\_analysis.R that does the
 following.
@@ -29,5 +29,5 @@ following.
 
 # Script & Output
 
-Please see run_analysis.R for script.
+Please see run_analysis.R for script and function of each piece of code.
 Output is included as .txt file.
