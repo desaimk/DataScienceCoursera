@@ -4,14 +4,14 @@ library(dplyr)
 
 ## Read required data
 
-Description <- read.table(“~/UCI HAR Dataset/features.txt”)
-Activity <- read.table(“~/UCI HAR Dataset/activity_labels.txt”)
-Xtest <- read.table(“~/UCI HAR Dataset/test/X_test.txt”)
-Ytest <- read.table(“~/UCI HAR Dataset/test/y_test.txt”)
-Subjtest <- read.table(“~/UCI HAR Dataset/test/subject_test.txt”)
-Xtrain <- read.table(“~/UCI HAR Dataset/train/X_train.txt”)
-Ytrain <- read.table(“~/UCI HAR Dataset/train/y_train.txt”)
-Subjtrain <- read.table(“~/UCI HAR Dataset/train/subject_train.txt”)
+Description <- read.table(â€œ~/UCI HAR Dataset/features.txtâ€)
+Activity <- read.table(â€œ~/UCI HAR Dataset/activity_labels.txtâ€)
+Xtest <- read.table(â€œ~/UCI HAR Dataset/test/X_test.txtâ€)
+Ytest <- read.table(â€œ~/UCI HAR Dataset/test/y_test.txtâ€)
+Subjtest <- read.table(â€œ~/UCI HAR Dataset/test/subject_test.txtâ€)
+Xtrain <- read.table(â€œ~/UCI HAR Dataset/train/X_train.txtâ€)
+Ytrain <- read.table(â€œ~/UCI HAR Dataset/train/y_train.txtâ€)
+Subjtrain <- read.table(â€œ~/UCI HAR Dataset/train/subject_train.txtâ€)
 
 ## Merge data
 
@@ -20,22 +20,25 @@ Y <- rbind(Ytest, Ytrain)
 SUBJ <- rbind(Subjtest, Subjtrain)
 
 ## Get and assign column names 
-## Assumes vertical order in “features” matches horizontal in “test”
+## Assumes vertical order in â€œfeaturesâ€ matches horizontal in â€œtestâ€
 
 Head <- t(Description)
 names(X) <- Head[2,]
-names(Y) <- c(“Activity”)
-names(SUBJ) <- c(“Subj.”)
-Y[Y==1] <- “Walking”
-Y[Y==2] <- "Walking Up Stairs”
-Y[Y==3] <- "Walking Down Stairs”
+names(Y) <- c(â€œActivityâ€)
+names(SUBJ) <- c(â€œSubj.â€)
+
+## Assign activity descriptions
+
+Y[Y==1] <- â€œWalkingâ€
+Y[Y==2] <- "Walking Up Stairsâ€
+Y[Y==3] <- "Walking Down Stairsâ€
 Y[Y==4] <- "Sitting"
 Y[Y==5] <- "Standing"
 Y[Y==6] <- "Laying"
 
 ## Extract data with Mean and StDev
 
-X <- X[,c(grep(“.mean", names(X)), grep(“.sub", names(X)))]
+X <- X[,c(grep(â€œ.mean", names(X)), grep(â€œ.sub", names(X)))]
 DS
 ## Create Tidy Data Set
 
