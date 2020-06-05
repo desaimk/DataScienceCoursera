@@ -27,7 +27,16 @@ following.
     with your scripts. This repo explains how all of the scripts work
     and how they are connected.
 
-# Script & Output
+# Script Overview & Output
 
 Please see run_analysis.R for script and function of each piece of code.
-Output is included as .txt file.
+
+1. Data files from test and training groups are imported; these include:
+    a. Measurements (X)
+    b. Activity Codes (y)
+    c. Descriptions of Activity
+    d. Participant / subject Info
+2. Data from test and training groups are merged.
+3. Appropriate activities performed are identified based on activity code; Appropriate headers are assigned to measurements.
+4. Information of interest is extracted.
+5. Extracted information is summarized. Output is included as .txt file.
