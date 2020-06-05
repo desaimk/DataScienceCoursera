@@ -1,15 +1,18 @@
 Code Book: Coursera - Getting and Cleaning Data - Final Project
 ================
 
-The “TidyDS” file includes means and standard deviations of measurements
-taken while subjects performed various activities.
 
-Subjects: Data includes 30 subjects, assigned numbers from 1 - 30.
+Submitted R code evaluates data that includes means and standard deviations of measurements of various parameters.
+Data were gathered from http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
 
-Activities were: Walking, Walking Up Stairs, Walking Down Stairs,
-Sitting, Standing, and Laying
 
-Various Measurements are:
+
+Study includes 30 subjects, broken up into two groups. Each subject is assigned a number from 1 - 30 and performed one or all 
+of following activities: 
+
+(1) Walking, (2) Walking Up Stairs, (3) Walking Down Stairs, (4) Sitting, (5) Standing, and (6) Laying
+
+Various parameters that were extracted from data set for this project are:
 
 1.  tBodyAccMeanX
 2.  tBodyAccMeanY
