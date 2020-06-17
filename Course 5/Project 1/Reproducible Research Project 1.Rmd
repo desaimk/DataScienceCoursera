@@ -56,13 +56,13 @@ Imputing Data and recreating graphs (note I've used mean of initial data)
 For unknown reason, knitr is not able to produce mean / median lines as RStudio does (see png file).
 ```{r chunk 5}
 ## Impute data with mean of steps from initial data set & create a new data frame 
-Incomplete$steps[is.na(Incomplete$steps)] = mean(Raw$steps, n.rm = TRUE)
+Incomplete$steps[is.na(Incomplete$steps)] = mean(Raw$steps, na.rm = TRUE)
 ImpMerge <- rbind(Incomplete, Complete)
 
 ## Summarize Imputed Data
 ImpDaily <- ImpMerge %>% group_by(date) %>% summarize("Activity" = sum(steps))
-```
-```{r Chunk 5 Graph}
+ImpDaily$Activity[is.na(ImpDaily$Activity)] <- mean(Daily$Activity)
+
 ## Histogram of Imputed Data
 hist(ImpDaily$Activity, xlab = "Steps", main = "Daily Activity Histogram - Imputed w/ Mean # of Steps")
 abline(v = mean(ImpDaily$Activity), lty = 1, col = "red", lwd = 3)
@@ -83,7 +83,7 @@ Last part of assignment:
 ImpTimePlot <- ImpMerge %>% group_by(interval, DayClass) %>% summarize("Avg" = mean(steps))
 ```
 
-Plot for Activity Weekend vs. Weekday is produced in R Studio (also attached as .png), but is not able to print when knitr is used to create html file.
+Plot for Activity Weekend vs. Weekday 
 ```{r}
 a <- ggplot(ImpTimePlot, aes(interval, Avg, color = DayClass))
 a + geom_line() + ggtitle("Activity Time Plot, Weekday v Weekend") + xlab("Intervals") + ylab("Activity")
