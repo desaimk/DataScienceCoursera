@@ -1,0 +1,84 @@
+---
+title: "Reproducible Research, Project 1"
+---
+
+Data loading portion:
+```{r chunk 1}
+
+## Load Packages
+library(dplyr)
+library(ggplot2)
+
+## Load Data
+Raw <- read.csv("./activity.csv", header = TRUE)
+```
+
+Initial sort of Data
+```{r chunk 2}
+## Separate Complete and Incomplete Cases
+Complete <- Raw[complete.cases(Raw),]
+Incomplete <- Raw[!complete.cases(Raw),]
+```
+For first part of the assignment:
+```{r chunk 3}
+## Summary of Daily Activity by Date
+Daily <- Complete %>% group_by(date) %>% summarize("Activity" = sum(steps))
+
+## Produce Histogram, Add Labels, Title, & Legend 
+hist(Daily$Activity, xlab = "Steps", main = "Daily Activity Histogram")
+abline(v = mean(Daily$Activity), lty = 1, col = "red", lwd = 3)
+abline(v = median(Daily$Activity), lty = 3, col = "blue", lwd = 5)
+legend(17000, 20, legend=c("Mean", "Median"), col=c("red", "blue"), lty = 1:3, cex = .8)
+
+## Get Mean and Median of Daily Activity by Date
+mean(Daily$Activity)
+median(Daily$Activity)
+```
+
+Second part of assignment:
+```{r chunk 4}
+## Summary of Activity by Interval
+TimePlot <- Complete %>% group_by(interval) %>% summarize("Avg" = mean(steps))
+
+## Produce Line Plot
+plot(TimePlot$interval, TimePlot$Avg, type = "l", xlab = "Interval", ylab = "Activity Avg.", main = "Time Plot of Activity")
+
+## Find Interval with Highest Activity
+TimePlot[which.max(TimePlot$Avg), 1]
+```
+
+Imputing Data and recreating graphs (note I've used mean of initial data)
+```{r chunk 5}
+## Impute data with mean of steps from initial data set & create a new data frame 
+Incomplete$steps[is.na(Incomplete$steps)] = mean(Raw$steps, n.rm = TRUE)
+ImpMerge <- rbind(Incomplete, Complete)
+
+## Summarize Imputed Data
+ImpDaily <- ImpMerge %>% group_by(date) %>% summarize("Activity" = sum(steps))
+
+## Histogram of Imputed Data
+hist(ImpDaily$Activity, xlab = "Steps", main = "Daily Activity Histogram - Imputed w/ Mean # of Steps")
+abline(v = mean(ImpDaily$Activity), lty = 1, col = "red", lwd = 3)
+abline(v = median(ImpDaily$Activity), lty = 3, col = "blue", lwd = 5)
+legend(17000, 20, legend=c("Mean", "Median"), col=c("red", "blue"), lty = 1:3, cex = .8)
+
+```
+ 
+Adding days and classifying as Weekday or Weekend
+```{r chunk 6}
+## Add Weekday Info & Classify as Weekday or Weekend
+ImpMerge$Day <- weekdays(as.Date(ImpMerge$date, format = "%Y-%m-%d"))
+ImpMerge$DayClass <- ifelse(ImpMerge$Day == "Saturday" | ImpMerge$Day == "Sunday", "Weekend", "Weekday")
+```
+
+Last part of assignment:
+```{r chunk 7}
+## Summarize Modified Data
+ImpTimePlot <- ImpMerge %>% group_by(interval, DayClass) %>% summarize("Avg" = mean(steps))
+
+## Plot Activity Weekend vs. Weekday
+
+a <- ggplot(ImpTimePlot, aes(interval, Avg, color = DayClass))
+a + scale_y_continuous(limits=c(0,250)) + geom_line() + ggtitle("Activity Time Plot, Weekday v Weekend") + xlab("Intervals") + ylab("Activity")
+
+```
