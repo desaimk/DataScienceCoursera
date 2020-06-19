@@ -1,0 +1,77 @@
+---
+title: "IMPACT OF STORMS ON POPULATION HEALTH AND ECONOMY"
+author: "DMK"  
+date: "6/19/2020"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+This report briefly examines the cumulative economic and polulation health impact of storms in the US from 1950 - 2007.  The report examines data collected from the National Weather Services and utilizes "National Weather Service Instruction 10-1605" published on Aug. 17, 2007. Publication can be found via <https://www.nws.noaa.gov/directives> --> Operations & Services.  Data can be found via <https://www.ncdc.noaa.gov/stormevents/ftp.jsp>.  
+
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(ggplot2)
+```
+
+```{r data load}
+knitr::opts_chunk$set(echo = TRUE)
+
+StormData <- read.csv("./StormData.csv", header = TRUE)
+```
+
+Adding columns with actual damage costs using representative letters in "...EXP"
+```{r amend data}
+knitr::opts_chunk$set(echo = TRUE)
+
+StormData$CROPCOST <- ifelse(StormData$CROPDMGEXP == "K", as.numeric(StormData$CROPDMG*1000), ifelse(StormData$CROPDMGEXP == "M", as.numeric(StormData$CROPDMG*1000000), ifelse(StormData$CROPDMGEXP == "B", as.numeric(StormData$CROPDMG*1000000000), "0")))
+
+StormData$PROPCOST <- ifelse(StormData$PROPDMGEXP == "K", as.numeric(StormData$PROPDMG*1000), ifelse(StormData$PROPDMGEXP == "M", as.numeric(StormData$PROPDMG*1000000), ifelse(StormData$PROPDMGEXP == "B", as.numeric(StormData$PROPDMG*1000000000), "0")))
+
+## Making sure data are numeric
+StormData <- transform(StormData, CROPCOST = as.numeric(CROPCOST), PROPCOST = as.numeric(PROPCOST))
+```
+
+Summarize data for easier viewing
+```{r summarize}
+knitr::opts_chunk$set(echo = TRUE)
+
+## Summary without State Codes
+SDSumm <- StormData %>% group_by(EVTYPE) %>% summarize("TotalCrop" = sum(CROPCOST), "TotalProp" = sum(PROPCOST), "Fatalities" = sum(FATALITIES), "Injuries" = sum(INJURIES))
+
+## Assumption: property & crop damage equal to economic cost, summarized in $ millions
+SDSumm$Econ_Millions <- as.numeric((SDSumm$TotalCrop + SDSumm$TotalProp)/1000000)
+
+## Assumption: fatalities and injuries equal to pop. health
+SDSumm$PH <- SDSumm$Fatalities + SDSumm$Injuries
+```
+
+As following chart of top-10 event types (ranked in descending order of total casualties) shows, flooding appears to have the highest impact on population health.
+```{r public health}
+knitr::opts_chunk$set(echo = TRUE)
+
+## Descending sort on public health column
+SDSumm <- SDSumm[order(-SDSumm$PH),]
+
+## Chart creation
+chart <- ggplot(SDSumm[1:10,], aes(PH, reorder(EVTYPE, PH)))
+chart + geom_col() + xlab("Total Casualties (Fatalities + Injuries)") + ylab("Event Type") + ggtitle("CUMULATIVE PUBLIC HEALTH IMPACT (US)") + theme(axis.text.y = element_text(size = 8) + theme(axis.title = element_text(size = 8)))
+```
+
+As following chart of top-10 event types (ranked in descending order of cost impact) shows, flooding appears to have the highest economic consequences. 
+```{r economic graph}
+knitr::opts_chunk$set(echo = TRUE)
+
+## Descending sort on public health column
+SDSumm <- SDSumm[order(-SDSumm$Econ_Millions),]
+
+## Chart creation
+chart2 <- ggplot(SDSumm[1:10,], aes(Econ_Millions, reorder(EVTYPE, Econ_Millions)))
+chart2 + geom_col() + xlab("Cost in Millions") + ylab("Event Type") + ggtitle("CUMULATIVE ECONOMIC IMPACT (US)") + theme(axis.text.y = element_text(size = 8) + theme(axis.title = element_text(size = 8)))
+```
+
+SUMMARY: Since 1950 (start date of data collection), highest economic costs from weather related events in the US have been due to flooding and highest public health impact (fatalities and injuries) have been due to tornadoes.
