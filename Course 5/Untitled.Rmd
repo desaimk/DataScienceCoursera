@@ -1,0 +1,61 @@
+---
+title: "Practical Machine Learning Project"
+author: "DMK"
+date: "7/9/2020"
+output: html_document
+---
+This exercise uses data made available from Groupware@LES (http://groupware.les.inf.puc-rio.br/har).  This exercise asks that the "how well" rather than the "which" or "how much", an activity is performed by the wearer of measurement device. Using data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants where they were asked to perform barbell lifts correctly and incorrectly in 5 different ways, the model will attempt to predict the manner in which the participant performed the exercise.  Data were collected from http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har.  
+
+Source Paper citation: 
+
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+Read more: http://groupware.les.inf.puc-rio.br/har#ixzz6RjNQ1Hsj
+
+```{r setup}
+library(caret); library(dplyr); library(rattle); library(randomForest)
+
+# Import data sets
+TrainSet <- read.csv(url("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"))
+TestSet <- read.csv(url("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"))
+```
+
+
+Partition data into "Training" and "Test" subsets using 80% / 20% rule
+```{r partitioning}
+Use <- createDataPartition(TrainSet$classe, p = .8, list = FALSE)
+UseTrain <- TrainSet[Use, ]
+UseTest <- TrainSet[-Use, ]
+
+# The next step cleanses data to remove columns that are mostly NA values
+TrainUse_Use <- UseTrain[,c(8:11, 37:49, 60:68, 84:86, 102, 113:124, 140, 151:160)]
+```
+
+Developing the model
+```{r Model}
+set.seed(1234)
+forest <- randomForest(classe ~., data = TrainUse_Use, ntree = 250, importance = TRUE)
+forest
+
+plot(forest, main = "RandomForest Error Rates")
+
+# Check to see which are most influencial variables
+
+Influencers <- importance(forest)
+Sorted <- as.data.frame(Influencers)
+Gini <- Sorted[order(-Sorted$MeanDecreaseGini),]
+Accy <- Sorted[order(-Sorted$MeanDecreaseAccuracy),]
+Gini[1:10,]
+Accy[1:10,]
+```
+
+Applying model to predeictions
+```{r Predictions}
+Predict = predict(forest, newdata = UseTrain)
+confusionMatrix(Predict, UseTrain$classe)
+
+# As this model generates an accuracy of 1, all appropriate influencers must have been selected in developing the model. Applying this model we get following results.
+
+FinalTest <- predict(forest, newdata = TestSet)
+FinalTest
+``` 
