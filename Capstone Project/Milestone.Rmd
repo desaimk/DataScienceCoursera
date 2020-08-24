@@ -1,0 +1,106 @@
+---
+title: "Text Prediction App - Milestone Report"
+author: "DMK"
+date: "8/24/2020"
+output: html_document
+---
+
+### Summary
+This final project (Capstone) for Data Science Specialization requires developing a text prediction Shiny App.  The app is "taught" to predict next word in a sentence by training it using three files provided via Coursera / Swiftkey.  For the purpose of this submission, English language files are utilized.
+
+### Steps
+It is evident that the files are large - so, as first step I'll evaluate the number of lines of text in each without actually reading them into R.  This will help determine a number of lines that should be used as a good representative set for the app to "learn" from.
+
+#### Setup
+- Load required packages
+```{r setup, echo=TRUE, include=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ngram)
+library(ggplot2)
+library(stringi)
+library(stringr)
+library(tm)
+```
+### Explore Files
+- Gather information on total lines & average word count per line in datasets
+```{r Examine, echo=FALSE, message=FALSE, warning=FALSE}
+Twitter <- file("./final/en_US/en_US.twitter.txt")
+Blogs <- file("./final/en_US/en_US.blogs.txt")
+News <- file("./final/en_US/en_US.news.txt")
+
+length(readLines(Twitter, skipNul = TRUE))
+wordcount(readLines(Twitter, skipNul = TRUE), count.function = mean)
+
+length(readLines(Blogs, skipNul = TRUE))
+wordcount(readLines(Blogs, skipNul = TRUE), count.function = mean)
+
+length(readLines(News, skipNul = TRUE))
+wordcount(readLines(News, skipNul = TRUE), count.function = mean)
+```
+### Collect Sample Corpus
+Approx. 2% of data is used in training set
+```{r Corpus, echo=TRUE, message=FALSE, warning=FALSE}
+set.seed(5432)
+TwitSample <- sample(readLines(Twitter, skipNul = TRUE), size = 50000, replace = TRUE)
+BlogSample <- sample(readLines(Blogs, skipNul = TRUE), size = 21500, replace = TRUE)
+NewsSample <- sample(readLines(News, skipNul = TRUE), size = 19000, replace = TRUE)
+TrainSet <- c(TwitSample, BlogSample, NewsSample)
+rm(TwitSample, BlogSample, NewsSample)
+# TrainSet <- Corpus(VectorSource(Train))
+```
+### Cleanse Data
+- Data is cleansed by removing punctuations, white spaces, numbers, etc.
+```{r Profanities, echo=FALSE, message=FALSE, warning=FALSE}
+Profanities <- c("fuck", "shit", "twat", "cunt", "dickhead", "bitch", "pussy")
+```
+
+```{r Cleanse, echo=TRUE, message=FALSE, warning=FALSE}
+
+TrainSet <- removeWords(TrainSet, Profanities)
+TrainSet <- tolower(TrainSet)
+TrainSet <- removePunctuation(TrainSet)
+TrainSet <- removeNumbers(TrainSet)
+TrainSet <- str_squish(TrainSet)
+TrainSet <- str_trim(TrainSet)
+```
+
+- After cleansing data, 1-, 2-, & 3-grams are created and saved as dataframes
+
+```{r NGrams, echo=TRUE, message=FALSE, warning=FALSE}
+#UniGram
+TrainSet <- TrainSet[str_count(TrainSet, "\\s+")>1]
+Gram1 <- ngram(TrainSet, n=1)
+UniGram <- get.phrasetable(Gram1)
+
+#BiGram
+TrainSet <- TrainSet[str_count(TrainSet, "\\s+")>2]
+Gram2 <- ngram(TrainSet, n=2)
+BiGram <- get.phrasetable(Gram2)
+
+#TriGram
+TrainSet <- TrainSet[str_count(TrainSet, "\\s+")>3]
+Gram3 <- ngram(TrainSet, n=3)
+TriGram <- get.phrasetable(Gram3)
+```
+
+### Words / phrases appearing most frequently in each n-gram are:
+```{r Charts, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(UniGram[1:30,], aes(x=reorder(ngrams,-freq), y=freq)) + 
+geom_bar(stat = "identity") + labs(title="UniGrams", x="Phrase", y="Freq.") +
+theme(axis.text.x=element_text(angle=70))
+
+ggplot(BiGram[1:30,], aes(x=reorder(ngrams,-freq), y=freq)) + 
+geom_bar(stat = "identity") +
+labs(title="Birams", x="Phrase", y="Freq.") +
+theme(axis.text.x=element_text(angle=70))
+
+ggplot(TriGram[1:30,], aes(x=reorder(ngrams,-freq), y=freq)) + 
+geom_bar(stat = "identity") +
+labs(title="TriGrams", x="Phrase", y="Freq.") +
+theme(axis.text.x=element_text(angle=70))
+
+```
+
+
+### Next Steps
+- Utilize exported Uni-, Bi-, and Tri-grams to build a Shiny App that predicts / proposes next word based on text entered.
