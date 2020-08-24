@@ -23,7 +23,7 @@ library(tm)
 ```
 ### Explore Files
 - Gather information on total lines & average word count per line in datasets
-```{r Examine, echo=FALSE, message=FALSE, warning=FALSE}
+```{r Examine, echo=TRUE, message=FALSE, warning=FALSE}
 Twitter <- file("./final/en_US/en_US.twitter.txt")
 Blogs <- file("./final/en_US/en_US.blogs.txt")
 News <- file("./final/en_US/en_US.news.txt")
